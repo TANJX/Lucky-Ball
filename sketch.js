@@ -17,10 +17,13 @@ function preload() {
   img_bump = loadImage('assets/bump.png');
   img_bump_active = loadImage('assets/bump_active.png');
   img_score = loadImage('assets/score.png');
+  img_score_b = loadImage('assets/score_b.png');
+  img_score_light = loadImage('assets/score_light.png');
   img_window = loadImage('assets/window.png');
   img_ball.push(loadImage('assets/ball_1.png'));
   img_ball.push(loadImage('assets/ball_2.png'));
   img_emoji.push(loadImage('assets/emoji_1.png'));
+  img_emoji.push(loadImage('assets/emoji_2.png'));
   img_reward.push(loadImage('assets/c1.png'));
   img_reward.push(loadImage('assets/c2.png'));
   img_reward.push(loadImage('assets/c3.png'));
@@ -54,6 +57,8 @@ let img_divider_right;
 let img_bump;
 let img_bump_active;
 let img_score;
+let img_score_b;
+let img_score_light;
 let img_window;
 let img_ball = [];
 let img_emoji = [];
@@ -67,7 +72,6 @@ function draw() {
   const width = windowWidth;
   const height = windowHeight;
 
-  // Displays the image at its actual size at point (0,0)
   noSmooth();
 
   fill('#2b2b39');
@@ -112,15 +116,24 @@ function draw() {
   col = col_start + (col_end - col_start) / rows / 2;
   for (let j = 0; j < rows; j++) {
     if (j < rows - 1) {
-      image(img_score, col, row, 16 * 8, 16 * 8);
       fill('#fff');
       textSize(52);
       textAlign(CENTER, TOP);
       const score = scores[j];
       if (score === 0) {
+        image(img_score, col, row, 16 * 8, 16 * 8);
         image(img_emoji[int(Math.random() * img_emoji.length)], col + 16 * 3, row + 16 * 3, 32, 32);
       } else {
+        image(img_score_b, col, row, 16 * 8, 16 * 8);
         image(img_reward[score - 1], col + 16 * 2, row + 16 * 2, 64, 64);
+      }
+    }
+
+    // ball in light
+    if (ball_in_count > 0 && dividers.length === ball_in) {
+      ball_in_count--;
+      if (parseInt(ball_in_count / 8) % 2 === 0) {
+        image(img_score_light, col - (col_end - col_start) / rows * 2, row - 128, 16 * 8 * 3, 16 * 8 * 2);
       }
     }
 
@@ -162,8 +175,8 @@ function draw() {
   // border
   fill('#434d5e');
   rect(0, 90, 30, height); // left
-  rect(width - 20, 90, 30, height); // right
-  rect(0, height - 150, width, 30); // bottom
+  rect(width - 30, 90, 30, height); // right
+  rect(0, height - 150, width, 40); // bottom
 
 
   // controller
@@ -238,6 +251,9 @@ let hit_divider = -1;
 let hit_divider_left = true; // true -> left, false -> right
 let hit_divider_count;
 
+let ball_in = -1;
+let ball_in_count;
+
 let score_random_count = -1;
 
 class Ball {
@@ -276,7 +292,7 @@ class Ball {
       if (stage === 1 && score_random_count < 0) {
         stage = 0;
         score_random_count = 100;
-        if (debug){
+        if (debug) {
           fill('#fff');
           rect(this.x, 0, 5, windowHeight);
         }
@@ -286,6 +302,10 @@ class Ball {
           if (divider[0] > this.x) {
             if (i === 0) break;
             coins += scores[i - 1];
+            if (scores[i - 1] > 0) {
+              ball_in_count = 20;
+              ball_in = i;
+            }
             break;
           }
         }
