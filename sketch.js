@@ -7,7 +7,7 @@ function setup() {
   canvas.parent("sketch");
 
 
-  frameRate(60);
+  frameRate(20);
   img_coin = loadImage('assets/coin.png'); // Load the image
   img_button_down = loadImage('assets/button_down.png');
   img_button_up = loadImage('assets/button_up.png');
@@ -70,7 +70,7 @@ function draw() {
   const col_end = width - 100;
   const rows = 8, cols = 4;
   let row = row_start, col;
-
+  bumps = [];
   fill('#1e2742');
   for (let i = 0; i < cols; i++) {
     let col = col_start;
@@ -78,6 +78,7 @@ function draw() {
       col += (col_end - col_start) / rows / 2;
     for (let j = 0; j < rows; j++) {
       rect(col, row, 10, 10);
+      bumps.push([col, row]);
       col += (col_end - col_start) / rows;
     }
     row += (row_end - row_start) / cols;
@@ -88,7 +89,6 @@ function draw() {
     rect(col, row, 10, 150);
     col += (col_end - col_start) / rows;
   }
-
 
   // controller
 
@@ -143,7 +143,9 @@ let launcher_location = 50;
 
 const gravity = 0.6;
 
+let bumps = [];
 let ball;
+let i;
 
 class Ball {
   // the constructor() is like setup() for each object instance. It runs once.
@@ -172,8 +174,38 @@ class Ball {
   }
 
   move() {
-    this.yv += gravity;
+    let ifHit = false;
+    for (const bump of bumps) {
+      const distance = dist(bump[0], bump[1], this.x, this.y);
+      if (distance < this.d / 2) {
+        ifHit = true;
+
+        // Fix collision position
+        let bump2ball = createVector(this.x - bump[0], this.y - bump[1]);
+        bump2ball.normalize();
+        bump2ball.mult(this.d / 2);
+        let new_pos = createVector(bump[0], bump[1]);
+        new_pos.add(bump2ball);
+        this.x = new_pos.x;
+        this.y = new_pos.y;
+
+        // Calculate bouncing direction
+        let l = createVector(-this.xv, -this.yv);
+        const mag = l.mag();
+        l.normalize();
+        let normal = createVector(this.x - bump[0], this.y - bump[1]);
+        normal.normalize();
+        const new_direction = normal.mult(l.dot(normal) * 2).sub(l);
+        this.xv = new_direction.x * mag * 0.9;
+        this.yv = new_direction.y * mag * 0.9;
+        break;
+      }
+    }
+
     this.x += this.xv;               // x and y are the position of the ball.
     this.y += this.yv;
+    if (!ifHit) {
+      this.yv += gravity;
+    }
   }
 }
