@@ -46,19 +46,55 @@ function draw() {
   // Displays the image at its actual size at point (0,0)
   noSmooth();
 
-  fill('#d4d4d4');
+  fill('#ededed');
   noStroke();
   rect(0, 0, width, height);
 
-  fill('#505c81');
-  noStroke();
-  rect(0, height - 130, width, 130);
+  // ball
+  if (ball) {
+    ball.move();
+    ball.draw();
+  }
 
+  // lanucher
   image(img_launcher, (width - 180) * launcher_location / 100, 0, 180, 180);
   fill('rgba(100,100,100,0.28)');
   noStroke();
   rect(0, 0, width, 90);
 
+  // bumps
+
+  const row_start = 260;
+  const row_end = height - 220;
+  const col_start = 100;
+  const col_end = width - 100;
+  const rows = 8, cols = 4;
+  let row = row_start, col;
+
+  fill('#1e2742');
+  for (let i = 0; i < cols; i++) {
+    let col = col_start;
+    if (i % 2 === 0)
+      col += (col_end - col_start) / rows / 2;
+    for (let j = 0; j < rows; j++) {
+      rect(col, row, 10, 10);
+      col += (col_end - col_start) / rows;
+    }
+    row += (row_end - row_start) / cols;
+  }
+  row -= 20;
+  col = col_start + (col_end - col_start) / rows / 2;
+  for (let j = 0; j < rows; j++) {
+    rect(col, row, 10, 150);
+    col += (col_end - col_start) / rows;
+  }
+
+
+  // controller
+
+  fill('#505c81');
+  noStroke();
+  rect(0, height - 130, width, 130);
 
   let img_button;
   let img_rod;
@@ -81,12 +117,13 @@ function draw() {
 
   if (keyIsDown(88) || keyIsDown(32)) {
     img_button = img_button_down;
+    launch();
   } else {
     img_button = img_button_up;
   }
 
-  image(img_button, width - 450, height - 130 - 140, 256, 256);
-  image(img_rod, width - 256, height - 130 - 140, 256, 256);
+  image(img_button, width - 500, height - 130 - 140, 256, 256);
+  image(img_rod, width - 280, height - 130 - 140, 256, 256);
 
   image(img_coin, width - 256, 0, 96, 96);
   fill('#000');
@@ -94,5 +131,49 @@ function draw() {
   image(img_logo, 24, 24, 7 * 8 * 6, 8 * 6);
 }
 
+function launch() {
+  if (stage > 0) return;
+  ball = new Ball((width - 180) * launcher_location / 100 + 90, 100, 80);
+}
+
+let stage = 0;
+
 let coins = 5;
 let launcher_location = 50;
+
+const gravity = 0.6;
+
+let ball;
+
+class Ball {
+  // the constructor() is like setup() for each object instance. It runs once.
+  constructor(x, y, d) {
+    // copy the arguments passed in into locally stored properties using this.
+    this.x = x;               // x and y are the position of the ball.
+    this.y = y;
+    this.d = d;               // d is the diameter of the ball.
+    this.r = d / 2;             // r is the radius of the ball.
+    this.xv = 0;   // xv and yv are the vectors of the ball.
+    this.yv = 0;
+    this.xv += 0;
+    this.yv += 0;
+    this.color = '#eea82c';
+  }
+
+  draw() {
+    fill(this.color);
+    noStroke();
+    ellipse(this.x, this.y, this.d, this.d);
+  }
+
+  setPosition(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+
+  move() {
+    this.yv += gravity;
+    this.x += this.xv;               // x and y are the position of the ball.
+    this.y += this.yv;
+  }
+}
