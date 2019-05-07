@@ -1,3 +1,7 @@
+function preload() {
+  font = loadFont('fonts/8PXBUS.ttf');
+}
+
 function setup() {
   let canvas = createCanvas(windowWidth, windowHeight);
   canvas.parent("sketch");
@@ -11,9 +15,15 @@ function setup() {
   img_rod_left = loadImage('assets/rod_left.png');
   img_rod_right = loadImage('assets/rod_right.png');
   img_logo = loadImage('assets/logo.png');
+
+  textFont(font);
+  textSize(52);
+  textAlign(LEFT, TOP);
 }
 
 // https://nonty.net/font/jackey_font/
+
+let font;
 
 let img_logo;
 let img_coin;
@@ -24,7 +34,14 @@ let img_rod_left;
 let img_rod_right;
 
 
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+}
+
 function draw() {
+  const width = windowWidth;
+  const height = windowHeight;
+
   // Displays the image at its actual size at point (0,0)
   noSmooth();
 
@@ -36,7 +53,10 @@ function draw() {
   noStroke();
   rect(0, height * 0.85, width, height * 0.2);
 
-  image(img_coin, width * 0.7, 0, 128, 128);
+  fill('#afafaf');
+  noStroke();
+  rect(0, 0, width, height * 0.1);
+
 
   let img_button;
   let img_rod;
@@ -55,8 +75,11 @@ function draw() {
     img_button = img_button_up;
   }
 
-  image(img_rod, width * 0.5, height * 0.85 - 128, 256, 256);
-  image(img_button, width * 0.5 + 250, height * 0.85 - 128, 256, 256);
+  image(img_button, width - 450, height * 0.85 - 128, 256, 256);
+  image(img_rod, width - 256, height * 0.85 - 128, 256, 256);
 
-  image(img_logo, 16, 16, 7 * 8 * 5, 8 * 5);
+  image(img_coin, width - 256, 0, 96, 96);
+  fill('#000');
+  text('123', width - 256 + 105, 30);
+  image(img_logo, 24, 24, 7 * 8 * 6, 8 * 6);
 }
