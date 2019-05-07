@@ -3,7 +3,10 @@ const debug = false;
 
 function preload() {
   font = loadFont('fonts/8PXBUS.ttf');
-  img_coin = loadImage('assets/coin.png'); // Load the image
+  img_coin = loadImage('assets/coin.png');
+  img_coin_x = loadImage('assets/coin_x.png');
+  img_coin_in = loadImage('assets/coin_insert.png');
+  img_coin_in_b = loadImage('assets/coin_insert_bottom.png');
   img_button_down = loadImage('assets/button_down.png');
   img_button_up = loadImage('assets/button_up.png');
   img_rod_center = loadImage('assets/rod_center.png');
@@ -43,8 +46,12 @@ function setup() {
 
 let font;
 
+// textures
 let img_logo;
 let img_coin;
+let img_coin_x;
+let img_coin_in;
+let img_coin_in_b;
 let img_button_down;
 let img_button_up;
 let img_rod_center;
@@ -217,7 +224,23 @@ function draw() {
   image(img_button, width - 500, height - 130 - 140, 256, 256);
   image(img_rod, width - 280, height - 130 - 140, 256, 256);
 
-  image(img_coin, width - 256, 0, 96, 96);
+  image(img_coin_in, 125, height - 130, 128, 128);
+  if (coin_in_count > 0) {
+    image(img_coin, 125, height - 220 + (60 - coin_in_count) * 5, 128, 128);
+    coin_in_count--;
+  }
+  fill('#505c81');
+  noStroke();
+  rect(0, height - 50, 125 + 128, 100);
+  image(img_coin_in_b, 125, height - 130, 128, 128);
+  fill('#ffffff');
+  textSize(22);
+  textAlign(LEFT, TOP);
+  text('x / space to shoot', 270, height - 100);
+  text('left / right to move', 270, height - 65);
+
+  // top
+  image(img_coin_x, width - 256, 0, 96, 96);
   fill('#e5e5e5');
   textSize(52);
   textAlign(LEFT, TOP);
@@ -228,6 +251,7 @@ function draw() {
 function launch() {
   if (stage > 0) return;
   if (coins <= 0) return;
+  coin_in_count = 60;
   coins--;
   score_random_count = -1;
   ball = new Ball((width - 180) * launcher_location / 100 + 90, 100, 80);
@@ -253,6 +277,8 @@ let hit_divider_count;
 
 let ball_in = -1;
 let ball_in_count;
+
+let coin_in_count = -1;
 
 let score_random_count = -1;
 
