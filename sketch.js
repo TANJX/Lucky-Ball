@@ -7,7 +7,7 @@ function setup() {
   canvas.parent("sketch");
 
 
-  frameRate(20);
+  frameRate(60);
   img_coin = loadImage('assets/coin.png'); // Load the image
   img_button_down = loadImage('assets/button_down.png');
   img_button_up = loadImage('assets/button_up.png');
@@ -68,7 +68,7 @@ function draw() {
   const row_end = height - 220;
   const col_start = 100;
   const col_end = width - 100;
-  const rows = 8, cols = 4;
+  const rows = 8, cols = 5;
   let row = row_start, col;
   bumps = [];
   fill('#1e2742');
@@ -78,15 +78,19 @@ function draw() {
       col += (col_end - col_start) / rows / 2;
     for (let j = 0; j < rows; j++) {
       rect(col, row, 10, 10);
-      bumps.push([col, row]);
+      bumps.push([col + 5, row + 5]);
       col += (col_end - col_start) / rows;
     }
     row += (row_end - row_start) / cols;
   }
+
+  // dividers
+  dividers = [];
   row -= 20;
   col = col_start + (col_end - col_start) / rows / 2;
   for (let j = 0; j < rows; j++) {
     rect(col, row, 10, 150);
+    dividers.push([col + 5, row]);
     col += (col_end - col_start) / rows;
   }
 
@@ -144,6 +148,7 @@ let launcher_location = 50;
 const gravity = 0.6;
 
 let bumps = [];
+let dividers = [];
 let ball;
 let i;
 
@@ -174,6 +179,12 @@ class Ball {
   }
 
   move() {
+    // wall collision
+    if (this.x < this.d / 2 || windowWidth - this.x < this.d / 2) {
+      this.xv *= -1;
+    }
+
+    // bump collision
     let ifHit = false;
     for (const bump of bumps) {
       const distance = dist(bump[0], bump[1], this.x, this.y);
@@ -196,9 +207,29 @@ class Ball {
         let normal = createVector(this.x - bump[0], this.y - bump[1]);
         normal.normalize();
         const new_direction = normal.mult(l.dot(normal) * 2).sub(l);
-        this.xv = new_direction.x * mag * 0.9;
-        this.yv = new_direction.y * mag * 0.9;
+        this.xv = new_direction.x * mag * 0.9 + Math.random() * 0.02 - 0.01;
+        this.yv = new_direction.y * mag * 0.9 + Math.random() * 0.02 - 0.01;
         break;
+      }
+    }
+
+
+    // divider collision
+    for (const divider of dividers) {
+      // if the ball goes to the bottom
+      if (this.y + this.d / 2 > divider[1]) {
+        if (abs(this.x - divider[0]) < this.d / 2) {
+
+          if (this.x > divider[0]) {
+            this.x = divider[0] + this.d / 2;
+          } else {
+            this.x = divider[0] - this.d / 2;
+          }
+
+
+          this.xv *= -1;
+          break;
+        }
       }
     }
 
