@@ -25,11 +25,17 @@ function preload() {
   img_window = loadImage('assets/window.png');
   img_ball.push(loadImage('assets/ball_1.png'));
   img_ball.push(loadImage('assets/ball_2.png'));
+  img_ball.push(loadImage('assets/ball_3.png'));
+  img_ball.push(loadImage('assets/ball_4.png'));
+  img_ball.push(loadImage('assets/ball_5.png'));
   img_emoji.push(loadImage('assets/emoji_1.png'));
   img_emoji.push(loadImage('assets/emoji_2.png'));
   img_reward.push(loadImage('assets/c1.png'));
   img_reward.push(loadImage('assets/c2.png'));
   img_reward.push(loadImage('assets/c3.png'));
+  sound_hit = loadSound('sounds/hit.wav');
+  sound_win = loadSound('sounds/win.wav');
+  sound_lose = loadSound('sounds/lose.wav');
 }
 
 function setup() {
@@ -45,6 +51,11 @@ function setup() {
 // https://nonty.net/font/jackey_font/
 
 let font;
+
+// sound
+let sound_hit;
+let sound_win;
+let sound_lose;
 
 // textures
 let img_logo;
@@ -267,7 +278,7 @@ const gravity = 0.6;
 
 let bumps = [];
 let dividers = [];
-let scores = [0, 0, 0, 3, 2, 1, 0];
+let scores = [0, 1, 2, 3, 2, 1, 1];
 let ball;
 let hit_bump = -1;
 let hit_bump_count;
@@ -329,11 +340,16 @@ class Ball {
             if (i === 0) break;
             coins += scores[i - 1];
             if (scores[i - 1] > 0) {
+              sound_win.play();
               ball_in_count = 20;
               ball_in = i;
             }
             break;
           }
+        }
+
+        if (!sound_win.isPlaying()) {
+          sound_lose.play();
         }
       } else if (stage === 0 && score_random_count >= 1) {
         scores = shuffle(scores);
@@ -376,6 +392,8 @@ class Ball {
         const new_direction = normal.mult(l.dot(normal) * 2).sub(l);
         this.xv = new_direction.x * mag * 0.9 + Math.random() * 0.02 - 0.01;
         this.yv = new_direction.y * mag * 0.9 + Math.random() * 0.02 - 0.01;
+
+        sound_hit.play();
         break;
       }
     }
